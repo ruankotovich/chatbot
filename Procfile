@@ -1,0 +1,2 @@
+
+web: bash deploy.sh
