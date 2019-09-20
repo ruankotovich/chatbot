@@ -9,8 +9,11 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from src.bnp import BNP
+from src.raphael import RaphaelPhrases
 
 bnp = BNP()
+raphael = RaphaelPhrases()
+
 
 class ActionHelloWorld(Action):
 
@@ -23,5 +26,19 @@ class ActionHelloWorld(Action):
 
             rentabilidade_dia = bnp.rentabilidade_dia()
             dispatcher.utter_message("A rentabiliade no dia de hoje foi de {}".format(rentabilidade_dia))
+
+            return []
+
+class ActionRaphael(Action):
+
+        def name(self) -> Text:
+            return "action_raphael_phases"
+
+        def run(self, dispatcher: CollectingDispatcher,
+                tracker: Tracker,
+                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+            text = raphael.predict()
+            dispatcher.utter_message(text)
 
             return []
