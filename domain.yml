@@ -14,7 +14,14 @@ actions:
 
 templates:
   utter_greet:
+  - text: "Tudo bem meu caro?"
   - text: "Opa! Tudo bom?"
 
   utter_goodbye:
   - text: "Tchau"
+  - text: "Vou me retirar"
+  - text: "Até outro dia"
+
+  utter_bnp:
+  - text: "A rentabiliade do {fund_name} no dia de {current_day} foi de {daily_profitability}, totalizando a retabilidade mensal de {monthly_profitability}"
+  - text: "O fundo {fund_name} obteve a rentabiliade {daily_profitability} no dia {current_day} e está totalizando {monthly_profitability} como retabilidade mensal."
