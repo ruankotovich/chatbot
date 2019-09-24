@@ -11,34 +11,39 @@ from rasa_sdk.executor import CollectingDispatcher
 from src.bnp import BNP
 from src.raphael import RaphaelPhrases
 
-bnp = BNP()
 raphael = RaphaelPhrases()
 
 
 class ActionHelloWorld(Action):
 
-        def name(self) -> Text:
-            return "action_bnp"
+    def name(self) -> Text:
+        return "action_bnp"
 
-        def run(self, dispatcher: CollectingDispatcher,
-                tracker: Tracker,
-                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-            rentabilidade_dia = bnp.rentabilidade_dia()
-            dispatcher.utter_message("A rentabiliade no dia de hoje foi de {}".format(rentabilidade_dia))
+        bnp = BNP()
+        data = bnp.data()
+        dispatcher.utter_template("utter_bnp",
+                                  tracker,
+                                  fund_name=data['fund_name'],
+                                  current_day=data['current_day'],
+                                  daily_profitability=data['daily_profitability'],
+                                  monthly_profitability=data['monthly_profitability'])
+        return []
 
-            return []
 
 class ActionRaphael(Action):
 
-        def name(self) -> Text:
-            return "action_raphael_phases"
+    def name(self) -> Text:
+        return "action_raphael_phases"
 
-        def run(self, dispatcher: CollectingDispatcher,
-                tracker: Tracker,
-                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-            text = raphael.predict()
-            dispatcher.utter_message(text)
+        text = raphael.predict()
+        dispatcher.utter_message(text)
 
-            return []
+        return []

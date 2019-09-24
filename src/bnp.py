@@ -2,10 +2,26 @@ import re
 import requests
 import PyPDF2
 from os.path import exists
-from .preprocessing import all_isupper, is_date, today
+from datetime import datetime
+
+def all_isupper(text):
+    return all([w.isupper() for w in text.split()])
+
+
+def is_date(text, format='%d/%m/%y'):
+    try:
+        datetime.strptime(text, format)
+        return True
+    except ValueError:
+        return False
+
+
+def today():
+    return datetime.now().strftime("%m-%d-%Y")
 
 
 class BNP(object):
+
     def __init__(self):
         self.download()
         self.parser()
@@ -13,9 +29,11 @@ class BNP(object):
     def download(self):
         url = 'https://www.bnpparibas.com.br/RentabilidadeCotaFundos/Rentabilidade_Diaria.pdf'
 
-        if not exists('Rentabilidade_Diaria.pdf'):
+        if not exists('/tmp/Rentabilidade_Diaria_{}.pdf'.format(today())):
+            print('downloading .pdf')
             download_file = requests.get(url, allow_redirects=True)
-            writer = open('/tmp/Rentabilidade_Diaria_{}.pdf'.format(today()), 'wb')
+            writer = open(
+                '/tmp/Rentabilidade_Diaria_{}.pdf'.format(today()), 'wb')
             writer.write(download_file.content)
             writer.close()
 
@@ -27,6 +45,7 @@ class BNP(object):
         page = self.pdf_reader.getPage(0)
         data = page.extractText()
 
+        #print(data)
         """
         O extração dos dados consiste no seguinte padrão de valores.
         NOME DO FUNDO: Nome do fundo com todas as letras em maiúsculo.
@@ -39,6 +58,8 @@ class BNP(object):
         lines = data.split('\n')
         pivot = 0
         self.fundos = dict()
+        self.fundos['current_day'] = lines[1]
+        
         for pos, _ in enumerate(lines):
             if pos <= pivot:
                 continue
@@ -69,13 +90,15 @@ class BNP(object):
             except IndexError:
                 break
 
-    def rentabilidade_dia(self):
-        return self.fundos['FIC INFLACAO']['rentabilidade'][0]
+    def data(self):
+        return {
+            'fund_name': 'FUNDO BNP PARIBAS FIC INFLAÇÃO',
+            'current_day': self.fundos['current_day'],
+            'daily_profitability': self.fundos['FIC INFLACAO']['rentabilidade'][0], 
+            'monthly_profitability': self.fundos['FIC INFLACAO']['rentabilidade'][0],
+        }
 
-    def rentabilidade_mes(self):
-        return self.fundos['FIC INFLACAO']['rentabilidade'][1]
-
-
-bnp = BNP()
-print(bnp.rentabilidade_dia())
-print(bnp.rentabilidade_mes())
+    
+if __name__ == "__main__":    
+    bnp = BNP()
+    print(bnp.data())
